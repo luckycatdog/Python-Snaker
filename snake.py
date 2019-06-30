@@ -1,5 +1,8 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # encoding: utf-8
+import pygame
+from constants import *
+
 
 class Snake:
     def __init__(self, length = 3, headPos = [5,3], direction = 'right'):
@@ -23,12 +26,14 @@ class Snake:
             else:
                 tempY += 1
             self.bodyList.append((tempX, tempY))
+
     # 传入表示方向的字符串
     def changeDirection(self, newDirection):
         if self.isValidDirection(newDirection):
             self.direction = newDirection
         else:
             raise Exception('传入了错误的方向值')
+
     def isValidDirection(self, newDirection):
         if self.direction in ['up', 'down'] and newDirection in ['left', 'right']:
             return True
@@ -36,6 +41,7 @@ class Snake:
             return True
         else:
             return False
+
     # 前进一步
     def moveForward(self, eatFood=False):
         if self.direction == 'up':
@@ -63,3 +69,8 @@ class Snake:
             self.bodyList.pop()
         else:
             self.length += 1
+
+    def draw_self(self, screen):
+        for pos in self.bodyList:
+            pygame.draw.rect(screen, WHITE, \
+                    (pos[0]*USIZE, pos[1]*USIZE, USIZE, USIZE))

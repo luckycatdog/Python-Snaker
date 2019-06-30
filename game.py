@@ -1,25 +1,19 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # encoding: utf-8
 
 from snake import Snake
 import random
+import os
 import pygame, sys
 from pygame.locals import *
+from constants import *
 
 
 pygame.init()
 
-USIZE = 20 # 单位长度
-ROWS = 25
-COLUMNS = 25
+
 size = USIZE * COLUMNS + 300, USIZE * ROWS
 
-# set up the colors
-WHITE = (255, 255, 255)
-BLACK = (0, 0, 0)
-RED = (255, 0, 0)
-GREEN = (20, 160, 15)
-#
 GAMESTATE = 'playing'
 score = 0
 isFruitShowing = False
@@ -28,12 +22,14 @@ isFullScreen = False
 fruitPos = None
 snake = Snake()
 #
-INITSPEED = 5
+
 speed = INITSPEED # FPS
 fpsClock = pygame.time.Clock()
 #
-fontObj = pygame.font.Font('freesansbold.ttf', 20)
-scoreFont = pygame.font.Font('freesansbold.ttf', 32)
+#  fontObj = pygame.font.Font('freesansbold.ttf', 20)
+fontObj = pygame.font.SysFont('楷体', 20)
+#  scoreFont = pygame.font.Font('freesansbold.ttf', 32)
+scoreFont = pygame.font.SysFont('楷体', 32)
 
 def newScreen(size, full=False):
     global isFullScreen
@@ -46,6 +42,9 @@ def newScreen(size, full=False):
         screen = pygame.display.set_mode(size)
     return screen
 
+def loadSound(fname):
+    return pygame.mixer.Sound(os.path.join('res', fname))
+
 #  screen = pygame.display.set_mode(size, FULLSCREEN)
 screen = newScreen(size)
 pygame.display.set_caption('mysnake 1.0')
@@ -53,13 +52,13 @@ pygame.display.set_caption('mysnake 1.0')
 
 # 背景音乐
 pygame.mixer.init()
-pygame.mixer.music.load('res/background.mp3')
+pygame.mixer.music.load(os.path.join('res', 'background.mp3'))
 #  pygame.mixer.music.load('res/bg.mp3')
 pygame.mixer.music.set_volume(0.2)
 pygame.mixer.music.play(-1)
-soundEat = pygame.mixer.Sound('res/eat.ogg')
-soundFail = pygame.mixer.Sound('res/gameover.ogg')
-soundJiayou = pygame.mixer.Sound('res/jiayou.ogg')
+soundEat = loadSound('eat.ogg')
+soundFail = loadSound('gameover.ogg')
+soundJiayou = loadSound('jiayou.ogg')
 
 # 辅助函数
 def initGame():
@@ -74,6 +73,8 @@ def initGame():
     snake = Snake()
     pygame.mixer.music.rewind()
     pygame.mixer.music.unpause()
+
+
 def drawFinal():
     pygame.draw.rect(screen, RED, \
             (200, 120, 400, 300))
@@ -81,13 +82,14 @@ def drawFinal():
             (210, 130, 380, 280))
     overText = scoreFont.render('GAME OVER!',\
             True, WHITE)
-    scoreText = scoreFont.render('Your Score: ' + str(score),\
+    scoreText = scoreFont.render(u'最终得分: ' + str(score),\
             True, WHITE)
-    promptText = fontObj.render('Press "ENTER" to RESTART',
+    promptText = fontObj.render(u'按 "回车键" 再玩一次',
             True, WHITE)
     screen.blit(overText, (300, 200))
     screen.blit(scoreText, (300, 240))
-    screen.blit(promptText, (280, 290))
+    screen.blit(promptText, (300, 290))
+
 
 def drawFruit():
     """生成并绘制食物"""
@@ -103,23 +105,24 @@ def drawFruit():
             (fruitPos[0]*USIZE, fruitPos[1]*USIZE, USIZE, USIZE))
     isFruitShowing = True
 
-def drawSnake():
-    for pos in snake.bodyList:
-        pygame.draw.rect(screen, WHITE, \
-                (pos[0]*USIZE, pos[1]*USIZE, USIZE, USIZE))
+
+
+
 
 def redraw():
     screen.fill(GREEN)
     # 分割线
     pygame.draw.line(screen, RED, (502, 0), (502, 500), 3)
-    promptText = fontObj.render('Press "SPACE" to', True, WHITE)
-    promptText2 = fontObj.render('START/PAUSE', True, WHITE)
-    scoreText = scoreFont.render('Score: ' + str(score), True, WHITE)
+    promptText = fontObj.render(u'按 "空格键" 开始/暂停', True, WHITE)
+    #  promptText2 = fontObj.render(u'开始/暂停', True, WHITE)
+    scoreText = scoreFont.render(u'得分: ' + str(score), True, WHITE)
     screen.blit(promptText, (550, 100))
-    screen.blit(promptText2, (560, 120))
+    #  screen.blit(promptText2, (560, 120))
     screen.blit(scoreText, (570, 220))
-    drawSnake()
+    # drawSnake()
+    snake.draw_self(screen)
     drawFruit()
+
 
 def checkCollision():
     # 吃到食物
@@ -131,7 +134,9 @@ def checkCollision():
         return -1
     return 0
 
+
 redraw()
+
 
 while True:
     if isLocked:
@@ -144,7 +149,7 @@ while True:
                 screen = newScreen(size, full=not isFullScreen)
 
             if GAMESTATE == 'over' and event.key == K_RETURN:
-                print 'Return press'
+                print('Return press')
                 initGame()
             if event.key == K_SPACE:
                 if GAMESTATE == 'playing':
